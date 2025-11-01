@@ -19,6 +19,7 @@ app.post('/api/emoji', async (req, res) => {
       input: prompt
     })
     const content = resp.output_text?.trim() ?? ''
+    console.log('asdasd')
     res.json({ emoji: content })
   } catch (e: any) {
     res.status(500).json({ error: e?.message ?? 'error' })
