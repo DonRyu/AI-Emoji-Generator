@@ -10,6 +10,9 @@ const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 app.use(cors())
 app.use(bodyParser.json())
 
+app.get('/favicon.ico', (req, res) => res.status(204))
+
+
 app.post('/api/emoji', async (req, res) => {
   try {
     const text = String(req.body?.text ?? '')
@@ -21,7 +24,7 @@ app.post('/api/emoji', async (req, res) => {
     const content = resp.output_text?.trim() ?? ''
     console.log('asdasd')
     res.json({ emoji: content })
-  } catch (e: any) {
+  } catch (e) {
     res.status(500).json({ error: e?.message ?? 'error' })
   }
 })
