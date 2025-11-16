@@ -1,33 +1,32 @@
-import 'dotenv/config'
-import express from 'express'
-import cors from 'cors'
-import bodyParser from 'body-parser'
-import OpenAI from 'openai'
+import express from "express";
+import dotenv from "dotenv";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const app = express()
-const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+dotenv.config();
 
-app.use(cors())
-app.use(bodyParser.json())
+const app = express();
+app.use(express.json());
 
-app.get('/favicon.ico', (req, res) => res.status(204))
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-
-app.post('/api/emoji', async (req, res) => {
+app.post("/api/emoji", async (req, res) => {
   try {
-    const text = String(req.body?.text ?? '')
-    const prompt = `Return only 1-3 emojis that best express the following text. No words, no punctuation, emojis only.\nText: ${text}`
-    const resp = await client.responses.create({
-      model: 'gpt-4o-mini',
-      input: prompt
-    })
-    const content = resp.output_text?.trim() ?? ''
-    console.log('asdasd')
-    res.json({ emoji: content })
-  } catch (e) {
-    res.status(500).json({ error: e?.message ?? 'error' })
-  }
-})
+    const userInput = req.body.text;
 
-const port = Number(process.env.PORT ?? 3000)
-app.listen(port, () => {})
+    if (!userInput) {
+      return res.status(400).json({ error: "text is required" });
+    }
+
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+
+    const result = await model.generateContent({
+      contents: [{ role: "user", parts: [{ text: userInput }] }],
+    });
+
+    res.json({ output: result.response.text() });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.listen(3000);
