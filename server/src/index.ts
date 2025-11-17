@@ -2,14 +2,11 @@ import express from "express"
 import fs from "fs"
 import dotenv from "dotenv"
 import { GoogleGenerativeAI } from "@google/generative-ai"
-
 dotenv.config()
-
 const app = express()
 app.use(express.json())
 
 const ai = new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
-
 const CACHE_FILE = "./src/cache/emoji-cache.json"
 let cache = {}
 

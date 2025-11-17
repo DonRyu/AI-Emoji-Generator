@@ -55,22 +55,43 @@ export default function EmojiGenerator() {
   };
 
   return (
-    <div
-      style={{
-        maxWidth: 320,
-        display: "flex",
-        flexDirection: "column",
-        gap: 8,
-      }}
-    >
-      <input
-        value={input}
-        onChange={handleChange}
-        placeholder="Type in English only..."
-        style={{ padding: 8, border: "1px solid #aaa", borderRadius: 6 }}
-      />
-      <div style={{ minHeight: 40, fontSize: 28 }}>
-        {loading ? "⏳" : output}
+    <div className="w-full flex justify-center items-center min-h-screen bg-gray-50 caret-transparent">
+      <div className="w-full max-w-[700px] flex items-center flex-col gap-4 p-8 bg-white rounded-2xl shadow-sm border border-gray-200">
+        <h1 className="text-xl font-semibold text-gray-800">Emoji Generator</h1>
+        <div className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl ">😊</div>
+        <input
+          value={input}
+          onChange={handleChange}
+          placeholder="Type in English only..."
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+        />
+        <div className="w-full min-h-12 text-3xl text-center font-medium text-gray-800 ">
+          {loading ? "⏳" : output}
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => navigator.clipboard.writeText(output || "")}
+            className="w-28 h-12 bg-gray-600 text-white rounded-md font-medium text-xl active:scale-95 transition flex items-center justify-center"
+          >
+            Copy
+          </button>
+
+          <button
+            onClick={() =>
+              window.open(
+                `https://wa.me/?text=${encodeURIComponent(output)}`,
+                "_blank"
+              )
+            }
+            className="w-28 h-12 bg-green-600 text-white rounded-md text-sm active:scale-95 transition flex items-center justify-center"
+          >
+            <img
+              src="https://cdn.jsdelivr.net/npm/simple-icons/icons/whatsapp.svg"
+              className="w-7 h-7 invert"
+            />
+          </button>
+        </div>
       </div>
     </div>
   );
