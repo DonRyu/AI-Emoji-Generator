@@ -1,75 +1,67 @@
-# React + TypeScript + Vite
+Example Inputs (Similar Meaning)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+"dog running"
+"running dog"
+"a dog is running fast"
 
-Currently, two official plugins are available:
+All three should reuse the same cached result using semantic similarity, not exact text match.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+🚀 Emoji Generator API — Semantic Caching with Gemini
 
-## React Compiler
+This project returns emoji-only output using Gemini Flash, while minimizing AI usage through semantic caching powered by embeddings.
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+Purpose
 
-Note: This will impact Vite dev & build performances.
+Reduce API calls, lower cost, and improve response time by identifying meaning-level similarity, not matching raw text.
 
-## Expanding the ESLint configuration
+✨ Main Features
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+Converts natural language text into emoji-only output
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+Calls Gemini Flash only when cache miss occurs
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+Uses semantic similarity via cosine similarity + Gemini Embeddings
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+Caches results persistently in a local JSON file
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Supports repeated and similar queries with near-zero cost
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+🔍 Process Overview
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+Client sends a text prompt
+
+Server generates an embedding using free Gemini Embedding model
+
+Vector is compared with existing cache using cosine similarity
+
+If similarity ≥ 0.85 → return cached emoji (no AI call)
+
+Otherwise → call Gemini Flash, generate result, and store (vector + emoji)
+
+⚠️ Known Limitation
+
+One embedding produces ~700 float values
+
+JSON cache grows quickly as entries increase
+
+Real production systems typically use Vector Databases, such as:
+
+Qdrant, Pinecone, Weaviate, Milvus
+
+🧩 Client-Side Enhancements
+
+LocalStorage caching — zero backend call for repeated input
+
+Text normalization — lowercase + trim + whitespace cleanup
+
+English-only input filtering — removes non-English characters
+
+Debounce (400ms) — prevents excessive requests while typing
+
+useRef-based cache state — avoids unnecessary re-renders
+
+Auto LocalStorage sync — result persists after refresh
+
+Loading indicator (⏳) — clear user feedback
+
+Full TypeScript typing — safer and predictable code

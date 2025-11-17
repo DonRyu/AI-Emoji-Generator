@@ -2,5 +2,5 @@ POST http://localhost:3000/api/emoji
 Content-Type: application/json
 
 {
- "text":"Hello test"
+ "text":"i don't like coding"
 }
