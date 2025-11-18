@@ -55,10 +55,14 @@ export default function EmojiGenerator() {
   };
 
   return (
-    <div className="w-full flex justify-center items-center min-h-screen bg-gray-50 caret-transparent">
+    <div className="w-full flex justify-center items-center min-h-screen bg-gray-50 ">
       <div className="w-full max-w-[700px] flex items-center flex-col gap-4 p-8 bg-white rounded-2xl shadow-sm border border-gray-200">
-        <h1 className="text-xl font-semibold text-gray-800">Emoji Generator</h1>
-        <div className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl ">😊</div>
+        <h1 className="text-xl font-semibold text-gray-800 caret-transparent">
+          Emoji Generator
+        </h1>
+        <div className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl caret-transparent ">
+          😊
+        </div>
         <input
           value={input}
           onChange={handleChange}
@@ -80,7 +84,9 @@ export default function EmojiGenerator() {
           <button
             onClick={() =>
               window.open(
-                `https://wa.me/?text=${encodeURIComponent(output)}`,
+                `https://api.whatsapp.com/send?text=${encodeURIComponent(
+                  output
+                )}`,
                 "_blank"
               )
             }
