@@ -69,7 +69,7 @@ export default function EmojiGenerator() {
           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
         />
 
-        <div className="w-full min-h-12 text-3xl text-center font-medium text-gray-800">
+        <div className="w-full min-h-12 text-3xl text-center font-medium text-gray-800 caret-transparent">
           {loading ? "⏳" : output}
         </div>
 
