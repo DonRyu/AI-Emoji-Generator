@@ -4,10 +4,12 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev:client": "vite",
+    "dev:server": "cd server && npm run dev",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start": "start cmd /c \"npm run dev:client\" && start cmd /c \"npm run dev:server\""
   },
   "dependencies": {
     "@google/genai": "^1.29.1",

@@ -70,4 +70,4 @@ app.post("/api/emoji", async (req, res) => {
   res.json({ result: output, source: "gemini-api" })
 })
 
-app.listen(3000)
+app.listen(process.env.port)
