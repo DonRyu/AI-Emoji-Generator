@@ -8,6 +8,9 @@ export default function EmojiGenerator() {
   const controllerRef = useRef<AbortController | null>(null);
   const cache = useRef<Record<string, string>>({});
 
+  const MIN_LEN = 3;
+  const STOP_MS = 600;
+
   const normalize = (text: string) =>
     text.toLowerCase().trim().replace(/[^a-z0-9\s]/gi, "").replace(/\s+/g, " ");
 
@@ -18,24 +21,30 @@ export default function EmojiGenerator() {
       setOutput(cache.current[normalized]);
       return;
     }
+
     if (controllerRef.current) controllerRef.current.abort();
     controllerRef.current = new AbortController();
     setLoading(true);
+
     const res = await fetch("/api/emoji", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ text }),
       signal: controllerRef.current.signal,
     }).catch(() => null);
+
     if (!res) {
       setLoading(false);
       return;
     }
+
     const data = await res.json();
+
     if (data.result) {
       cache.current[normalized] = data.result;
       setOutput(data.result);
     }
+
     setLoading(false);
   };
 
@@ -46,9 +55,10 @@ export default function EmojiGenerator() {
     if (debounceRef.current) clearTimeout(debounceRef.current);
 
     debounceRef.current = setTimeout(() => {
-      if (v.trim() !== "") requestEmoji(v);
+      const cleaned = v.trim();
+      if (cleaned.length >= MIN_LEN) requestEmoji(cleaned);
       else setOutput("");
-    }, 400);
+    }, STOP_MS);
   };
 
   return (
