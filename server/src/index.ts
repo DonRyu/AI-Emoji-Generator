@@ -17,7 +17,7 @@ if (fs.existsSync(CACHE_FILE)) {
 }
 
 // ---------------------------
-// Normalize + Hash
+// Normalize
 // ---------------------------
 function normalize(text) {
   return text
@@ -27,8 +27,11 @@ function normalize(text) {
     .replace(/\s+/g, " ")
 }
 
+// ---------------------------
+// Hash vector (stable cluster)
+// ---------------------------
 function hashVector(vector) {
-  const str = vector.slice(0, 16).join(",")  
+  const str = vector.slice(0, 64).join(",")  
   return crypto.createHash("md5").update(str).digest("hex").slice(0, 8)
 }
 
@@ -47,7 +50,14 @@ function encodeVectorToBase64(vector) {
 
 function decodeBase64ToVector(base64) {
   const buffer = Buffer.from(base64, "base64")
-  const floatArray = new Float32Array(buffer.buffer)
+
+  // 🔥 critical fix - buffer offset 제거
+  const arrayBuffer = buffer.buffer.slice(
+    buffer.byteOffset,
+    buffer.byteOffset + buffer.byteLength
+  )
+
+  const floatArray = new Float32Array(arrayBuffer)
   return Array.from(floatArray)
 }
 
@@ -61,11 +71,10 @@ function cosineSim(a, b) {
   return dot / (magA * magB)
 }
 
-// similarity threshold
-const SIM_THRESHOLD = 0.75
+const SIM_THRESHOLD = 0.68  // best stability
 
 // ---------------------------
-// Main route
+// Main API
 // ---------------------------
 app.post("/api/emoji", async (req, res) => {
   const text = req.body.text
@@ -73,19 +82,17 @@ app.post("/api/emoji", async (req, res) => {
 
   const normalized = normalize(text)
 
-  // 1) Embedding
+  // 1) Embedding for semantic clustering
   const embedModel = ai.getGenerativeModel({ model: "text-embedding-004" })
   const embeddingResponse = await embedModel.embedContent(normalized)
-  let newVector = embeddingResponse.embedding.values
-  newVector = compressVector(newVector)
+  const newVector = compressVector(embeddingResponse.embedding.values)
 
-  // 2) Check semantic clusters
+  // 2) Compare with existing clusters
   for (const clusterKey in cache) {
     const vector = decodeBase64ToVector(cache[clusterKey].vector)
     const sim = cosineSim(newVector, vector)
 
     if (sim >= SIM_THRESHOLD) {
-      // same semantic cluster → reuse emoji
       return res.json({
         result: cache[clusterKey].emoji,
         cluster: clusterKey,
@@ -95,7 +102,7 @@ app.post("/api/emoji", async (req, res) => {
     }
   }
 
-  // 3) No cluster matched → Generate new emoji
+  // 3) No cluster matched → generate new emoji
   const genModel = ai.getGenerativeModel({ model: "gemini-2.0-flash" })
   const result = await genModel.generateContent({
     contents: [{
@@ -104,16 +111,17 @@ app.post("/api/emoji", async (req, res) => {
     }]
   })
 
+  // 🔥 안정적인 emoji 추출
   let emoji = result.response.text()
-  emoji = emoji.replace(/[^\p{Emoji}\p{Extended_Pictographic}]/gu, "").trim()
+  emoji = emoji.match(/[\p{Emoji}\p{Extended_Pictographic}]+/gu)?.join("") || ""
 
-  // 4) Create new cluster
+  // 4) New cluster creation
   const clusterKey = hashVector(newVector)
 
   cache[clusterKey] = {
     emoji,
     vector: encodeVectorToBase64(newVector),
-    representative: normalized,   // 대표 문장
+    representative: normalized,
     createdAt: Date.now()
   }
 
