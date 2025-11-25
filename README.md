@@ -1,67 +1,27 @@
-Example Inputs (Similar Meaning)
 
-"dog running"
-"running dog"
-"a dog is running fast"
 
-All three should reuse the same cached result using semantic similarity, not exact text match.
+Problem overview
 
-🚀 Emoji Generator API — Semantic Caching with Gemini
+Text normalization (remove special char, trim, match the case)
 
-This project returns emoji-only output using Gemini Flash, while minimizing AI usage through semantic caching powered by embeddings.
+Generate semantic embedding (convert text into a meaning-based vector) text-embedding-004 model.
 
-Purpose
+Vector is very large → compress Float32 values
 
-Reduce API calls, lower cost, and improve response time by identifying meaning-level similarity, not matching raw text.
+JSON file becomes huge → encode vector as Base64
 
-✨ Main Features
+On each request → decode Base64 back to Float32
 
-Converts natural language text into emoji-only output
+Compare vectors using cosine similarity
 
-Calls Gemini Flash only when cache miss occurs
+High similarity → reuse cached emoji
 
-Uses semantic similarity via cosine similarity + Gemini Embeddings
+Low similarity → generate a new emoji and store new vector
 
-Caches results persistently in a local JSON file
+Result: faster responses and fewer API calls
 
-Supports repeated and similar queries with near-zero cost
+Demo
 
-🔍 Process Overview
 
-Client sends a text prompt
-
-Server generates an embedding using free Gemini Embedding model
-
-Vector is compared with existing cache using cosine similarity
-
-If similarity ≥ 0.85 → return cached emoji (no AI call)
-
-Otherwise → call Gemini Flash, generate result, and store (vector + emoji)
-
-⚠️ Known Limitation
-
-One embedding produces ~700 float values
-
-JSON cache grows quickly as entries increase
-
-Real production systems typically use Vector Databases, such as:
-
-Qdrant, Pinecone, Weaviate, Milvus
-
-🧩 Client-Side Enhancements
-
-LocalStorage caching — zero backend call for repeated input
-
-Text normalization — lowercase + trim + whitespace cleanup
-
-English-only input filtering — removes non-English characters
-
-Debounce (400ms) — prevents excessive requests while typing
-
-useRef-based cache state — avoids unnecessary re-renders
-
-Auto LocalStorage sync — result persists after refresh
-
-Loading indicator (⏳) — clear user feedback
-
-Full TypeScript typing — safer and predictable code
+“Client-side: simple in-memory caching with React ref to avoid repeated API calls.”
+debounce
