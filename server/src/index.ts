@@ -111,7 +111,6 @@ app.post("/api/emoji", async (req, res) => {
     }]
   })
 
-  // 🔥 안정적인 emoji 추출
   let emoji = result.response.text()
   emoji = emoji.match(/[\p{Emoji}\p{Extended_Pictographic}]+/gu)?.join("") || ""
 
