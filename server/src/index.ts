@@ -51,7 +51,7 @@ function encodeVectorToBase64(vector) {
 function decodeBase64ToVector(base64) {
   const buffer = Buffer.from(base64, "base64")
 
-  // 🔥 critical fix - buffer offset 제거
+
   const arrayBuffer = buffer.buffer.slice(
     buffer.byteOffset,
     buffer.byteOffset + buffer.byteLength
